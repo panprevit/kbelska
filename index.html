@@ -82,16 +82,50 @@ tfoot td{border-bottom:0;font-weight:600}
 .agent .actions{display:grid!important;grid-template-columns:1fr;gap:8px}
 .agent .actions a.call{width:100%;justify-content:center;align-self:stretch}
 @media (max-width:420px){.agent .ph{margin:0 0 12px}.agent .ag-body{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px;width:100%}}
+header{display:flex;flex-wrap:wrap;gap:20px 36px;align-items:flex-start;justify-content:space-between}
+.head-t{min-width:0;flex:1 1 360px}
+.vcard{position:relative;display:block;flex:0 1 340px;width:340px;max-width:100%;padding:0;border:0;border-radius:8px;overflow:hidden;cursor:pointer;background:#16224d;aspect-ratio:16/9;box-shadow:0 10px 30px rgba(22,34,77,.22);font-family:var(--f-body);text-align:left;color:#fff}
+.vcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s}
+.vcard:hover img{transform:scale(1.04)}
+.vcard:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,34,77,.05) 35%,rgba(22,34,77,.9) 100%)}
+.vcard:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.vplay{position:absolute;z-index:2;left:50%;top:44%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:#fff;color:#16224d;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.vplay svg{width:28px;height:28px;margin:0}
+.vplay:before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(255,255,255,.8);animation:vpulse 2.2s ease-out infinite}
+@keyframes vpulse{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion:reduce){.vplay:before{animation:none;opacity:.6}.vcard img{transition:none}}
+.vlab{position:absolute;z-index:2;left:14px;right:14px;bottom:11px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:600;font-size:14.5px;line-height:1.2}
+.vlab span{font-family:var(--f-mono);font-weight:500;font-size:12.5px;background:rgba(255,255,255,.2);padding:2px 7px;border-radius:3px}
+dialog#vdlg{border:0;padding:0;background:transparent;max-width:min(1100px,94vw);width:100%;overflow:visible}
+dialog#vdlg::backdrop{background:rgba(8,12,28,.82)}
+.vbox{position:relative;border-radius:8px;background:#000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.vbox video{display:block;width:100%;max-height:84vh;background:#000;border-radius:8px}
+.vclose{position:absolute;z-index:3;top:-48px;right:0;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#16224d;font:600 24px/1 var(--f-body);cursor:pointer}
+.vclose:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.vcard{flex-basis:100%;width:100%}}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.stage{aspect-ratio:4/5}}
 @media (max-width:420px){body{padding-inline:16px}}
 </style>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Vizualizace · virtuální home staging</div>
-    <h1>Kbelská, Praha-Hloubětín</h1>
-    <p class="sub">Byt o ploše 30,2 m² s návrhem zařízení pro první bydlení. Pohled bez stropu, otáčejte tažením myši nebo prstu.</p>
+    <div class="head-t">
+      <div class="eyebrow">Vizualizace · virtuální home staging</div>
+      <h1>Kbelská, Praha-Hloubětín</h1>
+      <p class="sub">Byt o ploše 30,2 m² s návrhem zařízení pro první bydlení. Pohled bez stropu, otáčejte tažením myši nebo prstu.</p>
+    </div>
+    <button type="button" class="vcard" id="vopen" aria-haspopup="dialog" aria-label="Přehrát video: jak vizualizace funguje, 25 sekund">
+      <img src="promo-poster.jpg" alt="" width="640" height="360">
+      <span class="vplay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>
+      <span class="vlab">Jak to funguje<span>0:25</span></span>
+    </button>
   </header>
+  <dialog id="vdlg" aria-label="Video: jak vizualizace funguje">
+    <div class="vbox">
+      <button type="button" class="vclose" id="vclose" aria-label="Zavřít video">×</button>
+      <video id="vvid" controls playsinline preload="none" poster="promo-poster.jpg"><source src="promo.mp4" type="video/mp4"><source src="promo.webm" type="video/webm">Váš prohlížeč nepodporuje přehrávání videa.</video>
+    </div>
+  </dialog>
 
   <div class="grid">
     <div class="stagecol">
@@ -562,5 +596,15 @@ function frame(now){
  hemi.intensity+=(c.hemi-hemi.intensity)*f;sun.intensity+=(c.sun-sun.intensity)*f;warm.intensity+=(c.warm-warm.intensity)*f;warm2.intensity+=(c.warm2-warm2.intensity)*f;
  place();project();renderer.render(scene,camera);requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function(){var d=document.getElementById('vdlg'),v=document.getElementById('vvid'),o=document.getElementById('vopen');if(!d||!d.showModal){if(o)o.style.display='none';return}
+o.addEventListener('click',function(){d.showModal();var p=v.play();if(p&&p.catch)p.catch(function(){})});
+function shut(){if(d.open)d.close()}
+document.getElementById('vclose').addEventListener('click',shut);
+d.addEventListener('click',function(e){if(e.target===d)shut()});
+d.addEventListener('close',function(){v.pause()});
 })();
 </script>
