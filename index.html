@@ -107,7 +107,7 @@ dialog#vdlg::backdrop{background:rgba(8,12,28,.82)}
 @media (max-width:420px){body{padding-inline:16px}}
 /* Rozložení: větší náhled, kontakt jako samostatný pruh dole, fotka vpravo */
 .wrap{max-width:1320px}
-@media (min-width:861px){.grid{grid-template-columns:minmax(0,2.15fr) minmax(300px,1fr);gap:28px}}
+@media (min-width:861px){.grid{grid-template-columns:minmax(0,1fr) 310px;gap:22px}}
 .stage{max-height:90vh}
 .agent{padding:16px 18px!important}
 .agent .ag-body{order:1;margin:0!important;border-left:0!important;padding-left:0!important;border-right:1px solid var(--line);padding-right:16px}
@@ -121,7 +121,7 @@ dialog#vdlg::backdrop{background:rgba(8,12,28,.82)}
 .rooms .tot{border-left:1px solid var(--line);padding-left:18px}
 .rooms .tot span,.rooms .tot b{font-weight:600}
 aside .vcard{flex:none;width:100%;max-width:none}
-@media (max-width:860px){.grid{display:flex;flex-direction:column}aside{display:contents}}
+@media (max-width:860px){.grid{display:flex;flex-direction:column;align-items:stretch}.stagecol{width:100%}aside{display:contents}}
 @media (max-width:520px){.rooms{grid-template-columns:repeat(2,minmax(0,1fr))}.rooms .tot{border-left:0;padding-left:0}}
 
 /* vizitka v pravém sloupci: text + tlačítka (poloviční šířka) pod sebou, fotka vpravo */
@@ -191,7 +191,7 @@ aside .edit-h,aside .edit-s{justify-content:flex-start}
  aside .tools{padding:8px 12px;gap:6px}
  aside .edit{padding:10px 12px;gap:8px}
  aside .edit .hint{font-size:11.5px}
- aside .btn{padding:6px 10px}
+ aside .btn{padding:6px 9px;font-size:12.5px}
  aside section.rooms td{padding:2px 0;font-size:13px}
  .wrap header{margin-bottom:12px}
  aside .vcard{padding:6px 8px}
@@ -260,8 +260,8 @@ aside .edit-h,aside .edit-s{justify-content:flex-start}
       </div>
       <div class="edit">
         <div class="edit-h">
-          <label class="tog"><input type="checkbox" id="tglEdit" checked> Přesouvání nábytku</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="clearAll">Prázdný byt</button><button type="button" class="btn" id="resetF">Obnovit původní rozmístění</button></div>
+          <label class="tog"><input type="checkbox" id="tglEdit"> Přesouvání nábytku</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="clearAll">Prázdný byt</button><button type="button" class="btn" id="resetF">Obnovit rozmístění</button></div>
         </div>
         <div class="edit-s" id="sel" hidden>
           <span class="edit-n">Vybráno: <b id="selName"></b></span>
@@ -620,7 +620,7 @@ wallM.color.copy(tw);capM.color.copy(tc);doorM.color.copy(td);G.dark.fu.scale.y=
 /* Kamera */
 var D2R=Math.PI/180,R=4.7,base=20,W=1,H=1;
 var views={doll:{theta:.6,phi:52*D2R,fov:32},iso:{theta:Math.PI/4,phi:35.26*D2R,fov:8},top:{theta:0,phi:88*D2R,fov:32}};
-var curView='doll',fitted=true;
+var curView='doll',fitted=true,autoFit=true;
 var cur=Object.assign({},views.doll),tgt=Object.assign({},views.doll);
 cur.zoom=1;tgt.zoom=1;
 var target=new THREE.Vector3(0,.2,0);
@@ -629,7 +629,7 @@ function place(){camera.fov=cur.fov;var d=base*Math.tan(16*D2R)/Math.tan(cur.fov
  camera.position.set(target.x+d*Math.sin(cur.theta)*Math.cos(cur.phi),target.y+d*Math.sin(cur.phi),target.z+d*Math.cos(cur.theta)*Math.cos(cur.phi));
  camera.lookAt(target);camera.aspect=W/H;camera.updateProjectionMatrix()}
 function resize(){W=Math.max(stage.clientWidth,1);H=Math.max(stage.clientHeight,1);renderer.setSize(W,H,false);fit();if(fitted&&typeof panTgt!=='undefined'&&panTgt)refit(false)}
-new ResizeObserver(resize).observe(stage);resize();
+new ResizeObserver(resize).observe(stage);resize();window.addEventListener('load',function(){if(fitted)refit(true)});
 
 /* Popisky */
 var labs=[{el:document.getElementById('l1'),x:455,y:420},{el:document.getElementById('l2'),x:285,y:800},{el:document.getElementById('l3'),x:534,y:800},{el:document.getElementById('l4'),x:540,y:226}];
@@ -649,23 +649,23 @@ var cam2=new THREE.PerspectiveCamera(32,1,.5,300),PTS=[];
 [[268,148],[645,148],[645,915],[115,915],[115,697],[268,697]].forEach(function(p){[0,1.3].forEach(function(h){PTS.push(new THREE.Vector3(X(p[0]),h,Z(p[1])))})});
 [[290,170],[623,170],[623,323],[290,323]].forEach(function(p){PTS.push(new THREE.Vector3(X(p[0]),2.3,Z(p[1])))});
 function calcFit(th,ph,fv){var tg=new THREE.Vector3(0,.2,0),z=1,v=new THREE.Vector3(),asp=W/H;
- for(var it=0;it<12;it++){
+ for(var it=0;it<24;it++){
   var hh0=Math.tan(fv*D2R/2),d=base*Math.tan(16*D2R)/hh0/z;
   cam2.fov=fv;cam2.aspect=asp;cam2.position.set(tg.x+d*Math.sin(th)*Math.cos(ph),tg.y+d*Math.sin(ph),tg.z+d*Math.cos(th)*Math.cos(ph));cam2.lookAt(tg);cam2.updateProjectionMatrix();cam2.updateMatrixWorld(true);
   var x0=9,x1=-9,y0=9,y1=-9;PTS.forEach(function(p){v.copy(p).project(cam2);x0=Math.min(x0,v.x);x1=Math.max(x1,v.x);y0=Math.min(y0,v.y);y1=Math.max(y1,v.y)});
   var cx=(x0+x1)/2,cy=(y0+y1)/2,hh=d*hh0,kx=cx*hh*asp,ky=cy*hh/Math.max(.3,Math.sin(ph));
   tg.x+=kx*Math.cos(th)-ky*Math.sin(th);tg.z+=-kx*Math.sin(th)-ky*Math.cos(th);
-  z=Math.min(4,Math.max(.5,z*.95/Math.max((x1-x0)/2,(y1-y0)/2)))}
+  z=Math.min(4,Math.max(.5,z*.97/Math.max((x1-x0)/2,(y1-y0)/2)))}
  return {z:z,tg:tg}}
-function refit(snap){var vw=views[curView],r=calcFit(vw.theta,vw.phi,vw.fov);tgt.zoom=r.z;panTgt.copy(r.tg);if(snap){cur.zoom=r.z;target.copy(r.tg)}fitted=true}
+function refit(snap){var vw=views[curView],r=calcFit(vw.theta,vw.phi,vw.fov);tgt.zoom=r.z;panTgt.copy(r.tg);if(snap){cur.zoom=r.z;target.copy(r.tg)}fitted=true;autoFit=true}
 function clampZ(z){return Math.min(ZMAX,Math.max(ZMIN,z))}
 function unpress(){btns.forEach(function(b){b.setAttribute('aria-pressed','false')})}
-function panBy(dx,dy){fitted=false;var half=Math.tan(cur.fov*D2R/2),d=base*Math.tan(16*D2R)/half/cur.zoom,sc=2*d*half/H,st=Math.sin(cur.theta),ct=Math.cos(cur.theta),sp=Math.max(.35,Math.sin(cur.phi));
+function panBy(dx,dy){fitted=false;autoFit=false;var half=Math.tan(cur.fov*D2R/2),d=base*Math.tan(16*D2R)/half/cur.zoom,sc=2*d*half/H,st=Math.sin(cur.theta),ct=Math.cos(cur.theta),sp=Math.max(.35,Math.sin(cur.phi));
  panTgt.x+=(-ct*dx-st*dy/sp)*sc;panTgt.z+=(st*dx-ct*dy/sp)*sc;
  panTgt.x=Math.max(-4.5,Math.min(4.5,panTgt.x));panTgt.z=Math.max(-4.5,Math.min(4.5,panTgt.z))}
 
 /* Přesouvání a otáčení nábytku */
-var editOn=true,selP=null,dragP=null,ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),gplane=new THREE.Plane(new THREE.Vector3(0,1,0),0),gp=new THREE.Vector3();
+var editOn=false,selP=null,dragP=null,ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),gplane=new THREE.Plane(new THREE.Vector3(0,1,0),0),gp=new THREE.Vector3();
 var selEl=document.getElementById('sel'),selName=document.getElementById('selName'),msg=document.getElementById('moveMsg');
 function fmt(v){return v.toFixed(1).replace('.',',')}
 function setRay(e){var r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(ndc,camera)}
@@ -698,7 +698,7 @@ Object.keys(PL).forEach(function(k){PL[k].forEach(function(p){
  if(p.name==='TV komoda s televizí'||p.name==='Regál'){p.home.z=Z(585);p.g.position.z=Z(585)}
  if(p.name==='Kaktus'){p.home.z=Z(226);p.g.position.z=Z(226)}
  if(p.name==='Velká rostlina'){p.home.x=X(572);p.home.z=Z(636);p.g.position.set(X(572),0,Z(636))}})});
-cv.style.touchAction='none';
+cv.style.touchAction='pan-y';
 document.addEventListener('keydown',function(e){if(!selP||/INPUT|TEXTAREA/.test((e.target.tagName||'')))return;var k=e.key,n=.05;
  if(k==='r'||k==='R'){turn(e.shiftKey?-15:15)}
  else if(k==='ArrowLeft')put(selP,selP.g.position.x-n,selP.g.position.z);
@@ -723,11 +723,12 @@ cv.addEventListener('pointermove',function(e){
  if(e.shiftKey||e.buttons===2){panBy(dx,dy);return}
  fitted=false;if(tgt.fov<20){tgt.fov=cur.fov=32}
  tgt.theta-=dx*.008;if(e.pointerType!=='touch')tgt.phi=Math.min(1.54,Math.max(.3,tgt.phi+dy*.006));
- cur.theta=tgt.theta;cur.phi=tgt.phi;unpress()});
+ cur.theta=tgt.theta;cur.phi=tgt.phi;unpress();
+ if(autoFit){var rf=calcFit(cur.theta,cur.phi,cur.fov);tgt.zoom=cur.zoom=rf.z;panTgt.copy(rf.tg);target.copy(rf.tg)}});
 ['pointerup','pointercancel'].forEach(function(n){cv.addEventListener(n,function(e){if(dragP&&dragP.id===e.pointerId){dragP=null;cv.style.cursor='grab';return}delete ptrs[e.pointerId];pinch=0})});
 cv.addEventListener('contextmenu',function(e){e.preventDefault()});
-cv.addEventListener('wheel',function(e){e.preventDefault();fitted=false;tgt.zoom=clampZ(tgt.zoom*Math.exp(-e.deltaY*.0015))},{passive:false});
-function zoomBy(f){fitted=false;tgt.zoom=clampZ(tgt.zoom*f)}
+cv.addEventListener('wheel',function(e){e.preventDefault();fitted=false;autoFit=false;tgt.zoom=clampZ(tgt.zoom*Math.exp(-e.deltaY*.0015))},{passive:false});
+function zoomBy(f){fitted=false;autoFit=false;tgt.zoom=clampZ(tgt.zoom*f)}
 document.getElementById('zin').addEventListener('click',function(){zoomBy(1.3)});
 document.getElementById('zout').addEventListener('click',function(){zoomBy(1/1.3)});
 document.getElementById('zrs').addEventListener('click',function(){refit(false)});
