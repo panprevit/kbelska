@@ -225,7 +225,12 @@ var WH=1.25,wm=[wallM,wallM,capM,wallM,wallM,wallM];
 B(390,148,535,170,.45,wm);B(390,156,536,162,WH-.45,glass,.45);B(388,152,394,166,WH-.45,frameM,.45);B(531,152,537,166,WH-.45,frameM,.45);B(436,152,442,166,WH-.45,frameM,.45);B(485,152,491,166,WH-.45,frameM,.45);B(388,152,537,157,.04,frameM,WH-.04);B(388,152,537,157,.04,frameM,.45);
 B(213,863,217,918,WH,doorM);B(370,655,374,705,WH,doorM);B(385,794,435,798,WH,doorM);
 B(562,696,620,905,.56,white);B(568,702,614,898,.01,water,.565);C(591,709,3,.1,steel,.56,10);
-B(462,895,494,913,.42,white);C(478,876,15,.4,white,0,24);C(478,876,15,.05,M(0xe4dccd,.9),.4,24);
+/* záchod: stojící mísa s kapkovitým tvarem, sedátko s víkem, nádržka u zdi */
+function ell(cx,cy,rx,ry,h,mat,base){var m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,h,36),mat);m.scale.set(rx*S,1,ry*S);m.position.set(X(cx),base+h/2,Z(cy));return add(m)}
+(function(){var seat=M(0xf6f3ee,.35),porc=M(0xfbfaf7,.3),lid=M(0xf1eee8,.4);
+ ell(478,892,9,14,.3,porc,0);ell(478,884,13,22,.1,porc,.3);ell(478,876,16,27,.04,porc,.4);
+ ell(478,875,16,27,.025,seat,.44);ell(478,874,13.5,24,.02,lid,.465);
+ B(464,897,492,916,.38,porc,.4);B(463,896,493,917,.035,seat,.78);C(478,906,3,.02,steel,.815,12);B(466,915,490,918,.3,porc,.42)})();
 
 /* Společné drobnosti stylů */
 function hobsink(top,plateMat){B(400,868,423,900,.01,steel,top+.005);C(411,904,3,.16,steel,top+.005,10);B(268,862,294,908,.012,plateMat,top);
