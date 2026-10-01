@@ -139,6 +139,18 @@ aside .vcard{flex:none;width:100%;max-width:none}
  .agent .actions{margin-top:10px}
 }
 @container (min-width:520px){.agent-in{grid-template-columns:minmax(0,1fr) minmax(0,260px) auto}.agent-in{grid-template-areas:"role act ph" "nm act ph"}.agent .actions{grid-row:1 / span 2;align-self:center;margin-top:0}}
+
+/* Sloupce stejně vysoké: levý se roztáhne přes plochu, pravý přes tabulku místností */
+aside section{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:14px 16px}
+aside{gap:14px}
+.agent{margin-top:0!important}
+@media (min-width:861px){
+ .grid{align-items:stretch}
+ .stage{flex:1 1 auto;max-height:none;min-height:420px;aspect-ratio:1/1}
+ aside section.rooms{flex:1 1 auto;display:flex;flex-direction:column}
+ aside section.rooms table{flex:1 1 auto;height:100%}
+ aside section.rooms td{vertical-align:middle}
+}
 </style>
 
 <div class="wrap">
@@ -167,7 +179,7 @@ aside .vcard{flex:none;width:100%;max-width:none}
         <div class="lbl" id="l1"><b>Pokoj</b> 21,7 m²</div>
         <div class="lbl" id="l2"><b>Chodba + kuchyň</b> 5,2 m²</div>
         <div class="lbl" id="l3"><b>Koupelna + WC</b> 3,3 m²</div>
-        <div class="lbl" id="l4"><b>Zkosený strop</b> 0,9 až 2,3 m</div>
+        <div class="lbl" id="l4"><b>Zkosený strop</b> 0,6 až 2,3 m</div>
       </div>
       <div class="tools">
         <div class="seg" role="group" aria-label="Pohled">
@@ -208,17 +220,18 @@ aside .vcard{flex:none;width:100%;max-width:none}
           <button type="button" data-style="dark" aria-pressed="true"><span class="chipc"><i style="background:#1d1e22"></i><i style="background:#8a8c8e"></i><i style="background:#9a5a32"></i></span>Industriální</button>
           <button type="button" data-style="japandi" aria-pressed="false"><span class="chipc"><i style="background:#e9e0d0"></i><i style="background:#c9a57b"></i><i style="background:#b76f4b"></i></span>Japandi</button>
         </div>
-      </section>
-            <section id="floorSec">
+      <div id="floorSec" style="margin-top:18px">
         <h2>Odstín podlahy</h2>
         <div class="sw" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <button type="button" data-floor="2" aria-pressed="true"><span class="chipc"><i style="background:#a8693a"></i><i style="background:#8f5a2e"></i></span>Dub (aktuální stav)</button>
           <button type="button" data-floor="0" aria-pressed="false"><span class="chipc"><i style="background:#dcc7a0"></i><i style="background:#cfb68a"></i></span>Světlý dub</button>
           <button type="button" data-floor="1" aria-pressed="false"><span class="chipc"><i style="background:#b98a55"></i><i style="background:#a97a48"></i></span>Medový</button>
-          <button type="button" data-floor="2" aria-pressed="true"><span class="chipc"><i style="background:#5a3a25"></i><i style="background:#4a2f1d"></i></span>Tmavý ořech</button>
+          
         </div>
         <p class="hint" style="margin-top:10px">Platí pro oba styly. Dlažba v chodbě, kuchyni a koupelně se nemění.</p>
+      </div>
       </section>
-      <section>
+      <section class="rooms">
         <h2>Místnosti</h2>
         <table>
           <tbody>
@@ -274,6 +287,11 @@ function planks(n,h,s,l0,lv,minL,maxL,edge){return tex(function(g){var pw=512/n;
  for(var k=0;k<5;k++){g.fillStyle='rgba('+edge+','+(.04+rnd()*.05)+')';g.fillRect(i*pw+rnd()*pw,y,1,len)}
  g.fillStyle='rgba('+edge+',.35)';g.fillRect(i*pw,y,pw,1.5);y+=len}
  g.fillStyle='rgba('+edge+',.4)';g.fillRect(i*pw,0,1.5,512)}})}
+function oakT(){return tex(function(g){var n=6,pw=512/n;for(var i=0;i<n;i++){var y=-rnd()*300;while(y<512){var len=330+rnd()*182,l=26+rnd()*6;g.fillStyle='hsl(25,'+(42+rnd()*8)+'%,'+l+'%)';g.fillRect(i*pw,y,pw,len);
+ for(var k=0;k<16;k++){var gx=i*pw+rnd()*pw,gy=y+rnd()*len,gl=30+rnd()*120;g.fillStyle=rnd()<.5?'rgba(255,205,150,'+(.05+rnd()*.07)+')':'rgba(70,35,12,'+(.05+rnd()*.08)+')';g.fillRect(gx,gy,.6+rnd()*1.4,gl)}
+ g.fillStyle='rgba(255,215,170,.12)';g.fillRect(i*pw+1,y+1,pw-2,1);
+ g.fillStyle='rgba(60,30,10,.55)';g.fillRect(i*pw,y,pw,1.6);y+=len}
+ g.fillStyle='rgba(60,30,10,.45)';g.fillRect(i*pw,0,1.6,512)}})}
 function herring(h,s,l0,lv){return tex(function(g){var u=64;g.fillStyle='#000';g.fillRect(0,0,512,512);
  for(var m=-12;m<=12;m++)for(var n=-12;n<=12;n++){var px=m+5*n,py=m-3*n;
   [[px,py,4,1],[px+4,py-3,1,4]].forEach(function(r){var x=r[0]*u,y=r[1]*u,w=r[2]*u,hh=r[3]*u;if(x>512||y>512||x+w<0||y+hh<0)return;
@@ -298,10 +316,10 @@ function tealB(x0,y0,x1,y1,h,face,rw,rh,base){var t=tealT.clone();t.needsUpdate=
  var tm=new THREE.MeshStandardMaterial({map:t,roughness:.22,metalness:.05}),pl=M(0x0d2a35,.4),ms=[pl,pl,pl,pl,pl,pl];ms[face]=tm;return B(x0,y0,x1,y1,h,ms,base)}
 B(268,148,645,915,.14,plinth,-.14);B(115,697,268,915,.14,plinth,-.14);
 var WH=1.25,wm=[wallM,wallM,capM,wallM,wallM,wallM],wmW=[wallW,wallW,capW,wallW,wallW,wallW];
-[[268,148,390,170],[535,148,645,170],[268,148,290,705],[623,148,645,679],[435,657,623,679]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wm)});
+[[268,148,330,170],[448,148,645,170],[268,148,290,705],[623,148,645,679],[435,657,623,679]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wm)});
 [[623,679,645,755],[623,821,645,915],[135,697,268,718],[268,705,322,718],[372,705,435,718],[115,697,135,915],[135,893,160,915],[215,893,623,915],
  [240,805,250,893],[435,679,445,738],[435,796,445,893]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wmW)});
-B(390,148,535,170,.45,wm);B(390,156,536,162,WH-.45,glass,.45);B(388,152,394,166,WH-.45,frameM,.45);B(531,152,537,166,WH-.45,frameM,.45);B(436,152,442,166,WH-.45,frameM,.45);B(485,152,491,166,WH-.45,frameM,.45);B(388,152,537,157,.04,frameM,WH-.04);B(388,152,537,157,.04,frameM,.45);
+B(330,148,448,170,.85,wm);B(330,156,449,162,WH-.85,glass,.85);B(326,152,332,166,WH-.85,frameM,.85);B(446,152,452,166,WH-.85,frameM,.85);B(366,152,372,166,WH-.85,frameM,.85);B(406,152,412,166,WH-.85,frameM,.85);B(326,152,452,157,.04,frameM,WH-.04);B(326,152,452,157,.04,frameM,.85);
 B(213,838,217,893,WH,doorW);B(370,655,374,705,WH,doorW);B(385,794,435,798,WH,doorW);
 B(557,681,621,893,.56,white);B(563,687,615,887,.01,water,.565);C(589,696,3,.1,steel,.56,10);
 tealB(621,679,623,755,WH,1,.84,1.25);tealB(621,819,623,893,WH,1,.82,1.25);tealB(621,755,623,819,.78,1,.71,.78);
@@ -329,18 +347,18 @@ function laptop(base){B(298,372,326,410,.02,steel,base);B(296,370,300,412,.2,M(0
 function mk(){var g=new THREE.Group();g.visible=false;root.add(g);return g}
 var G={dark:{fl:mk(),fu:mk()},light:{fl:mk(),fu:mk()},japandi:{fl:mk(),fu:mk()}};
 
-/* Zkosený strop u okenní stěny. Předpoklad: kolenní stěna 0,9 m, sklon cca 40°, plná výška 2,3 m ve vzdálenosti 1,7 m od stěny (y 170 až 323 v půdorysu) */
+/* Zkosený strop u okenní stěny. Předpoklad: kolenní stěna 0,6 m (pod parapetem okna, podle fotky), sklon cca 40°, plná výška 2,3 m ve vzdálenosti 2,06 m od stěny (y 170 až 355 v půdorysu) */
 container=root;
 var slope=new THREE.Group();root.add(slope);
-var SP=[[290,170,.9],[623,170,.9],[623,323,2.3],[290,323,2.3]].map(function(p){return new THREE.Vector3(X(p[0]),p[2],Z(p[1]))});
+var SP=[[290,170,.6],[623,170,.6],[623,355,2.3],[290,355,2.3]].map(function(p){return new THREE.Vector3(X(p[0]),p[2],Z(p[1]))});
 var sgeo=new THREE.BufferGeometry();sgeo.setFromPoints([SP[0],SP[1],SP[2],SP[0],SP[2],SP[3]]);
 slope.add(new THREE.Mesh(sgeo,new THREE.MeshBasicMaterial({color:0x5b9bd5,transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false})));
 slope.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(SP),new THREE.LineBasicMaterial({color:0x2f6fb8})));
 var hatchT=tex(function(g){g.strokeStyle='rgba(30,50,110,.6)';g.lineWidth=7;for(var k=-512;k<1024;k+=64){g.beginPath();g.moveTo(k,512);g.lineTo(k+512,0);g.stroke()}});
-hatchT.repeat.set(3.7/1.2,.9/1.2);
-var hatch=new THREE.Mesh(new THREE.PlaneGeometry((623-290)*S,(251-170)*S),new THREE.MeshBasicMaterial({map:hatchT,transparent:true,depthWrite:false}));
-hatch.rotation.x=-Math.PI/2;hatch.position.set(X(456.5),.012,Z(210.5));slope.add(hatch);
-[251,323].forEach(function(y){slope.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(X(290),.02,Z(y)),new THREE.Vector3(X(623),.02,Z(y))]),new THREE.LineBasicMaterial({color:0x2f6fb8})))});
+hatchT.repeat.set(3.7/1.2,1.21/1.2);
+var hatch=new THREE.Mesh(new THREE.PlaneGeometry((623-290)*S,(279-170)*S),new THREE.MeshBasicMaterial({map:hatchT,transparent:true,depthWrite:false}));
+hatch.rotation.x=-Math.PI/2;hatch.position.set(X(456.5),.012,Z(224.5));slope.add(hatch);
+[279,355].forEach(function(y){slope.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(X(290),.02,Z(y)),new THREE.Vector3(X(623),.02,Z(y))]),new THREE.LineBasicMaterial({color:0x2f6fb8})))});
 
 /* ===== Industriální loft: černá ocel, koňaková kůže, beton, tmavé dřevo. Nábytek v pokoji je pohyblivý ===== */
 var PL={dark:[],light:[],japandi:[]},pieces=PL.dark,curList=PL.dark;
@@ -356,7 +374,7 @@ function piece(name,cx,cy,w,d,fn,opt){
  return p}
 (function(){
 container=G.dark.fl;
-G.dark.wood=[];[[30,38,60],[28,44,42],[24,38,20]].forEach(function(q){var g=new THREE.Group();g.visible=false;G.dark.fl.add(g);G.dark.wood.push(g);container=g;(function(T){floor(280,160,634,679,T,1.2,.45);floor(280,679,445,711,T,1.2,.45,-32*S/1.2)})(herring(q[0],q[1],q[2],7))});container=G.dark.fl;
+G.dark.wood=[];[[30,38,60],[28,44,42],null].forEach(function(q){var g=new THREE.Group();g.visible=false;G.dark.fl.add(g);G.dark.wood.push(g);container=g;(function(T){floor(280,160,634,679,T,1.2,.45);floor(280,679,445,711,T,1.2,.45,-32*S/1.2)})(q?herring(q[0],q[1],q[2],7):oakT())});container=G.dark.fl;
 floor(125,712,440,915,hallT,1.2,.55);
 floor(440,679,634,915,bathT,1.2,.3);
 container=G.dark.fu;
@@ -388,8 +406,6 @@ piece('Lavice u postele',482,408,22,118,function(){legs(472,350,492,466,.1,st,3)
   B(320,r[0]+7,321,r[0]+13,.02,chrome,.44);B(320,cy+7,321,cy+13,.02,chrome,.18);
   C(304,cy,2,.3,chrome,.58,8);cone(304,cy,3,9,.12,.98,shade);Sp(304,cy,3.5,.96,lampS)})});
 piece('Palety',340,193,88,38,function(){for(var k=0;k<3;k++)for(var i=0;i<6;i++)B(296+i*15,174,308+i*15,212,.04,wdL,k*.12);B(300,178,380,208,.1,gf,.36)});
-piece('Bedny',581,191,73,34,function(){B(548,176,616,206,.3,wdL,.0);for(var k=0;k<3;k++)B(547,175,617,207,.015,st,.07+k*.09);
- B(556,180,600,204,.22,wd,.3);C(580,192,6,.12,pot,.52,12);Sp(580,192,8,.7,gl)});
 piece('Kaktus',520,190,26,26,function(){B(508,178,532,202,.2,con);C(520,190,5,.5,gl,.2,10);C(513,190,3,.22,gl,.34,8);C(527,190,3,.28,gl,.4,8);Sp(520,190,5,.7,gl);Sp(513,190,3,.56,gl);Sp(527,190,3,.68,gl)});
 piece('Pracovní stůl',595,388,58,108,function(){B(563,336,623,444,.05,wd,.73);B(566,338,620,343,.7,st);B(565,402,621,442,.7,gf2);
  [410,420,430].forEach(function(y){B(565,y,566,y+6,.02,chrome,.45)});B(580,372,592,408,.015,gf,.78);
@@ -470,7 +486,7 @@ B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,
 (function(){
 curList=PL.japandi;
 container=G.japandi.fl;
-G.japandi.wood=[];[[33,36,63],[30,50,45],[24,38,22]].forEach(function(q){var g=new THREE.Group();g.visible=false;G.japandi.fl.add(g);G.japandi.wood.push(g);container=g;(function(T){floor(280,160,634,679,T,1.2,.6);floor(280,679,445,711,T,1.2,.6,-32*S/1.2)})(planks(4,q[0],q[1],q[2],7,200,380,'120,85,50'))});container=G.japandi.fl;
+G.japandi.wood=[];[[33,36,63],[30,50,45],null].forEach(function(q){var g=new THREE.Group();g.visible=false;G.japandi.fl.add(g);G.japandi.wood.push(g);container=g;(function(T){floor(280,160,634,679,T,1.2,.6);floor(280,679,445,711,T,1.2,.6,-32*S/1.2)})(q?planks(4,q[0],q[1],q[2],7,200,380,'120,85,50'):oakT())});container=G.japandi.fl;
 floor(125,712,440,915,hallT,1.2,.55);
 floor(440,679,634,915,bathT,1.2,.3);
 container=G.japandi.fu;
@@ -488,7 +504,6 @@ piece('Nízký stolek',606,500,30,32,function(){B(592,484,620,516,.32,oak);C(606
 piece('Lavice',340,193,88,38,function(){B(296,174,384,212,.4,wal);B(300,178,380,208,.07,sand,.4)});
 piece('Sedací polštář',430,210,34,34,function(){C(430,210,17,.12,terra,0,24)});
 piece('Sedací polštář',470,212,34,34,function(){C(470,212,17,.12,sand,0,24)});
-piece('Komoda',581,191,73,34,function(){B(545,174,618,208,.45,wal);B(545,174,618,208,.02,oakL,.45);C(565,191,5,.15,stone,.47,12);Sp(565,191,9,.7,pB)});
 piece('Rostlina',520,190,26,26,function(){plant(520,190,.6,terra,pA,pB)});
 piece('Sedačka bouclé',317,563,55,126,function(){
  legs(290,500,345,626,.08,oak,4);B(290,500,345,626,.2,boucle,.08);B(290,500,302,626,.5,boucle,.08);
@@ -542,7 +557,7 @@ sun.shadow.camera.near=1;sun.shadow.camera.far=30;sun.shadow.bias=-.0004;sun.sha
 var warm=new THREE.PointLight(0xffc98a,1,7);warm.position.set(X(455),1.15,Z(430));scene.add(warm);
 var warm2=new THREE.PointLight(0xffd9a8,.6,4);warm2.position.set(X(290),1.1,Z(830));scene.add(warm2);
 var ground=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.ShadowMaterial({opacity:.16}));ground.rotation.x=-Math.PI/2;ground.position.y=-.141;ground.receiveShadow=true;ground.visible=false;scene.add(ground);
-var floorTone={dark:2,japandi:0};
+var floorTone={dark:2,japandi:2};
 function applyFloor(){['dark','japandi'].forEach(function(st){G[st].wood.forEach(function(g,i){g.visible=(i===floorTone[st])})});
  [].slice.call(document.querySelectorAll('[data-floor]')).forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.floor===floorTone[curStyle]))})}
 [].slice.call(document.querySelectorAll('[data-floor]')).forEach(function(b){b.addEventListener('click',function(){floorTone[curStyle]=+b.dataset.floor;applyFloor()})});
@@ -565,7 +580,7 @@ function resize(){W=Math.max(stage.clientWidth,1);H=Math.max(stage.clientHeight,
 new ResizeObserver(resize).observe(stage);resize();
 
 /* Popisky */
-var labs=[{el:document.getElementById('l1'),x:455,y:420},{el:document.getElementById('l2'),x:285,y:800},{el:document.getElementById('l3'),x:534,y:800},{el:document.getElementById('l4'),x:456,y:214}];
+var labs=[{el:document.getElementById('l1'),x:455,y:420},{el:document.getElementById('l2'),x:285,y:800},{el:document.getElementById('l3'),x:534,y:800},{el:document.getElementById('l4'),x:456,y:226}];
 var v3=new THREE.Vector3();
 function project(){labs.forEach(function(l){v3.set(X(l.x),.08,Z(l.y)).project(camera);l.el.style.left=((v3.x+1)/2*W)+'px';l.el.style.top=((1-v3.y)/2*H)+'px'})}
 document.getElementById('tglLbl').addEventListener('change',function(e){labs.slice(0,3).forEach(function(l){l.el.hidden=!e.target.checked})});
@@ -607,7 +622,7 @@ function pick(e){if(!editOn)return null;setRay(e);var hits=ray.intersectObjects(
 function groundPt(e){setRay(e);return ray.ray.intersectPlane(gplane,gp)}
 function check(p){
  if(!p){msg.textContent='';return}
- var b=new THREE.Box3().setFromObject(p.g),d=(b.min.z/S+OY-170)*S,lim=d>=1.7?99:.9+Math.max(0,d)*1.4/1.7,bad=b.max.y>lim+.005&&p.h>.1;
+ var b=new THREE.Box3().setFromObject(p.g),d=(b.min.z/S+OY-170)*S,lim=d>=2.06?99:.6+Math.max(0,d)*1.7/2.06,bad=b.max.y>lim+.005&&p.h>.1;
  var col=bad?0xff5a5a:0x95acff;p.outline.material.color.set(col);p.fill.material.color.set(col);
  msg.textContent=bad?p.name+': pod zkosený strop se nevejde. Strop je tady vysoký jen '+fmt(lim)+' m, nábytek má '+fmt(b.max.y)+' m.':''}
 function select(p){if(selP){selP.outline.visible=false;selP.fill.visible=false}selP=p;
@@ -629,6 +644,7 @@ document.getElementById('tglEdit').addEventListener('change',function(e){editOn=
 /* Koupelna vystupuje do pokoje (výklenek vpravo dole): kusy, které by zasahovaly do zdi, posunout */
 Object.keys(PL).forEach(function(k){PL[k].forEach(function(p){
  if(p.name==='TV komoda s televizí'||p.name==='Regál'){p.home.z=Z(585);p.g.position.z=Z(585)}
+ if(p.name==='Kaktus'){p.home.z=Z(226);p.g.position.z=Z(226)}
  if(p.name==='Velká rostlina'){p.home.x=X(572);p.home.z=Z(636);p.g.position.set(X(572),0,Z(636))}})});
 cv.style.touchAction='none';
 document.addEventListener('keydown',function(e){if(!selP||/INPUT|TEXTAREA/.test((e.target.tagName||'')))return;var k=e.key,n=.05;
