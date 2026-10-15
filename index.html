@@ -215,6 +215,22 @@ aside .edit-h,aside .edit-s{justify-content:flex-start}
 @media (max-width:860px){.vz{grid-template-columns:auto minmax(0,1fr);padding:18px}.vz-act{grid-column:1 / -1;flex-direction:column;justify-content:stretch}.vz-b{width:100%}}
 @media (max-width:380px){.vz-ph{width:80px;height:80px}.vz-b{padding:12px 10px;font-size:15px}}
 </style>
+<style>
+.vf{position:relative;display:block;width:100%;padding:0;margin:0;font:inherit;text-align:left;cursor:pointer;border:3px solid #1F2A4A;border-radius:10px;background:#1F2A4A;color:#fff;overflow:hidden;box-shadow:0 12px 30px rgba(31,42,74,.35)}
+.vf-tag{position:absolute;z-index:3;left:0;top:0;background:#ffcfa0;color:#1F2A4A;font:700 12px var(--f-mono);letter-spacing:.12em;padding:6px 12px;border-bottom-right-radius:10px}
+.vf-th{position:relative;display:block;aspect-ratio:16/9;background:url(promo-card.jpg?v=1) center/cover}
+.vf-th:after{content:"";position:absolute;inset:0;background:rgba(31,42,74,.35)}
+.vf-pr{position:absolute;z-index:2;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;display:grid;place-items:center;border-radius:50%;background:#fff;color:#1F2A4A;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.vf-pr:before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,255,255,.8);animation:vpulse 2.2s ease-out infinite}
+.vf-cap{display:block;padding:11px 14px 13px}
+.vf-cap b{display:flex;justify-content:space-between;align-items:baseline;font:700 17px var(--f-display)}
+.vf-cap i{font:500 13px var(--f-mono);color:#ffcfa0;font-style:normal}
+.vf-cap span{display:block;font-size:12.5px;color:#c9d3f5;margin-top:4px}
+.vf:hover .vf-pr{transform:scale(1.06)}
+.vf:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.vf-pr:before{animation:none;opacity:.6}.vf:hover .vf-pr{transform:none}}
+@media (max-width:860px){aside .vf{order:3}}
+</style>
 <div class="wrap">
   <header>
     <div class="head-t">
@@ -246,9 +262,10 @@ aside .edit-h,aside .edit-s{justify-content:flex-start}
     </div>
 
     <aside>
-    <button type="button" class="vcard" id="vopen" aria-haspopup="dialog" aria-label="Přehrát video: jak vizualizace funguje, 25 sekund">
-      <span class="vth"><img src="promo-poster.jpg?v=2" alt="" width="640" height="360"><span class="vplay"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span></span>
-      <span class="vtx"><b>Jak to funguje</b><small>Video návod · 0:49</small></span>
+    <button type="button" class="vf" id="vopen" aria-haspopup="dialog" aria-label="Přehrát videonávod: jak vizualizace funguje, 49 sekund">
+      <span class="vf-tag">ZAČNĚTE TADY</span>
+      <span class="vf-th"><span class="vf-pr"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="26" height="26"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span></span>
+      <span class="vf-cap"><b>Videonávod<i>0:49</i></b><span>Jak to funguje: otáčení, zoom, nábytek</span></span>
     </button>
       <div class="tools">
         <div class="seg" role="group" aria-label="Pohled">
