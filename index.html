@@ -335,12 +335,12 @@ var camera=new THREE.PerspectiveCamera(32,1,0.5,300);
 
 /* Půdorys: 90 px = 1 m, počátek ve středu obrysu */
 var S=1/90,OX=380,OY=544;
-var X=function(p){return (p-OX)*S},Z=function(p){return (p-OY)*S};
+var X=function(p){return (p-OX)*S},YT=function(p){return p>718?p-30:p},Z=function(p){return (YT(p)-OY)*S};
 var root=new THREE.Group();scene.add(root);
 var container=root;
 function M(c,r,m,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:r==null?.85:r,metalness:m||0},o||{}))}
 function add(m){m.castShadow=true;m.receiveShadow=true;container.add(m);return m}
-function B(x0,y0,x1,y1,h,mat,base){base=base||0;var m=new THREE.Mesh(new THREE.BoxGeometry((x1-x0)*S,h,(y1-y0)*S),mat);m.position.set(X((x0+x1)/2),base+h/2,Z((y0+y1)/2));return add(m)}
+function B(x0,y0,x1,y1,h,mat,base){base=base||0;var m=new THREE.Mesh(new THREE.BoxGeometry((x1-x0)*S,h,(YT(y1)-YT(y0))*S),mat);m.position.set(X((x0+x1)/2),base+h/2,((YT(y0)+YT(y1))/2-OY)*S);return add(m)}
 function C(cx,cy,r,h,mat,base,seg){var m=new THREE.Mesh(new THREE.CylinderGeometry(r*S,r*S,h,seg||28),mat);m.position.set(X(cx),(base||0)+h/2,Z(cy));return add(m)}
 function Sp(cx,cy,r,yc,mat){var m=new THREE.Mesh(new THREE.SphereGeometry(r*S,18,14),mat);m.position.set(X(cx),yc,Z(cy));return add(m)}
 function legs(x0,y0,x1,y1,h,mat,t){t=t||4;[[x0,y0],[x1-t,y0],[x0,y1-t],[x1-t,y1-t]].forEach(function(p){B(p[0],p[1],p[0]+t,p[1]+t,h,mat)})}
@@ -367,12 +367,12 @@ function tiles(n,base,vr,grout,gw){return tex(function(g){var s=512/n;g.fillStyl
 function concrete(base,vr){return tex(function(g){g.fillStyle='rgb('+base[0]+','+base[1]+','+base[2]+')';g.fillRect(0,0,512,512);
  for(var k=0;k<220;k++){var x=rnd()*512,y=rnd()*512,r=24+rnd()*100,dark=rnd()<.5,a=(.02+rnd()*vr).toFixed(3);var gr=g.createRadialGradient(x,y,0,x,y,r);
   gr.addColorStop(0,dark?'rgba(0,0,0,'+a+')':'rgba(255,255,255,'+a+')');gr.addColorStop(1,'rgba(128,128,128,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r)}})}
-function floor(x0,y0,x1,y1,t,mw,rough,oy){var w=(x1-x0)*S,d=(y1-y0)*S,tt=t.clone();tt.needsUpdate=true;tt.repeat.set(w/mw,d/mw);if(oy)tt.offset.set(0,oy);
- var m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:tt,roughness:rough||.7}));m.rotation.x=-Math.PI/2;m.position.set(X((x0+x1)/2),.004,Z((y0+y1)/2));m.receiveShadow=true;container.add(m)}
+function floor(x0,y0,x1,y1,t,mw,rough,oy){var w=(x1-x0)*S,d=(YT(y1)-YT(y0))*S,tt=t.clone();tt.needsUpdate=true;tt.repeat.set(w/mw,d/mw);if(oy)tt.offset.set(0,oy);
+ var m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:tt,roughness:rough||.7}));m.rotation.x=-Math.PI/2;m.position.set(X((x0+x1)/2),.004,((YT(y0)+YT(y1))/2-OY)*S);m.receiveShadow=true;container.add(m)}
 
 /* Sdílené: podstavec, stěny, dveře, vana a WC */
 var wallM=M(0xf3efe8,.9),capM=M(0x2b3350,.8),doorM=M(0xe9d3b0,.7),glass=M(0xbfe0f2,.1,0,{transparent:true,opacity:.35}),
-frameM=M(0x8a6540,.7),white=M(0xf4f1ec,.6),steel=M(0xb9bfc7,.35,.8),water=M(0xdfe9ef,.3),plinth=M(0xd2cbbd,.9);
+frameM=M(0xf4f1ec,.5),white=M(0xf4f1ec,.6),steel=M(0xb9bfc7,.35,.8),water=M(0xdfe9ef,.3),plinth=M(0xd2cbbd,.9);
 /* Pevné barvy chodby a koupelny podle skutečných fotek (stejné pro oba styly) */
 var wallW=M(0xf1eee6,.9),capW=M(0x4a4d55,.8),doorW=M(0xf4f1ec,.7),stoneB=M(0x6f716d,.95);
 var hallT=planks(6,25,30,28,6,220,400,'50,32,18'),bathT=tiles(2,[206,202,193],4,'#aaa59a',2);
@@ -384,17 +384,34 @@ function tealB(x0,y0,x1,y1,h,face,rw,rh,base){var t=tealT.clone();t.needsUpdate=
 B(268,148,645,915,.14,plinth,-.14);B(115,697,268,915,.14,plinth,-.14);
 var WH=1.25,wm=[wallM,wallM,capM,wallM,wallM,wallM],wmW=[wallW,wallW,capW,wallW,wallW,wallW];
 [[268,148,330,170],[448,148,645,170],[268,148,290,705],[623,148,645,679],[435,657,623,679]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wm)});
-[[623,679,645,755],[623,821,645,915],[135,697,268,718],[268,705,322,718],[372,705,435,718],[115,697,135,915],[135,893,160,915],[215,893,623,915],
- [240,805,250,893],[435,679,445,738],[435,796,445,893]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wmW)});
+[[623,679,645,765],[623,811,645,915],[135,697,268,718],[268,705,322,718],[372,705,435,718],[115,697,135,915],[215,893,623,915],
+ [240,833,250,893],[435,679,445,767],[435,825,445,893]].forEach(function(r){B(r[0],r[1],r[2],r[3],WH,wmW)});
 B(330,148,448,170,.85,wm);B(392,170,451,182,.36,M(0xe6dcc4,.6),.2);B(394,170,449,182,.10,M(0x3a3a3e,.6),.56);B(444,170,448,174,.2,M(0xb9bcc2,.4),0);B(331,156,447,162,WH-.85-.014,glass,.857);B(326,152,331,166,WH-.85-.006,frameM,.853);B(447,152,452,166,WH-.85-.006,frameM,.853);B(366,152.4,372,165.6,WH-.85-.008,frameM,.855);B(406,152.4,412,165.6,WH-.85-.008,frameM,.855);B(331,152.8,447,165.2,.04,frameM,WH-.05);B(331,152.8,447,165.2,.04,frameM,.862);
-B(213,838,217,893,WH,doorW);B(370,655,374,705,WH,doorW);B(385,794,435,798,WH,doorW);
-B(557,681,621,893,.56,white);B(563,687,615,887,.01,water,.565);C(589,696,3,.1,steel,.56,10);
-tealB(621,679,623,755,WH,1,.84,1.25);tealB(621,819,623,893,WH,1,.82,1.25);tealB(621,755,623,819,.78,1,.71,.78);
+function doorLeaf(hx,hy,ux,uy,len){var m=new THREE.Mesh(new THREE.BoxGeometry(len*S,WH,4*S),doorW);
+ var cx=hx+ux*len/2,cy=hy+uy*len/2;m.position.set(X(cx),WH/2,Z(cy));m.rotation.y=-Math.atan2(uy,ux);
+ var hw=len*S/2,hh=.62;
+ [.18,WH-.2].forEach(function(z){var h=new THREE.Mesh(new THREE.CylinderGeometry(1.5*S,1.5*S,.09,12),steel);h.position.set(-hw+1.2*S,z-WH/2,0);m.add(h)});
+ [1,-1].forEach(function(sd){var r=new THREE.Mesh(new THREE.CylinderGeometry(2.4*S,2.4*S,1*S,16),steel);r.rotation.x=Math.PI/2;r.position.set(hw-6*S,hh-WH/2,sd*2.5*S);m.add(r);
+  var l=new THREE.Mesh(new THREE.BoxGeometry(11*S,1.5*S,1.5*S),steel);l.position.set(hw-11*S,hh-WH/2,sd*3.7*S);m.add(l);
+  var k=new THREE.Mesh(new THREE.CylinderGeometry(.8*S,.8*S,1.5*S,10),steel);k.rotation.x=Math.PI/2;k.position.set(hw-6*S,hh-WH/2,sd*3.7*S);m.add(k)});
+ return add(m)}
+var A75=45*Math.PI/180,c75=Math.cos(A75),s75=Math.sin(A75);
+doorLeaf(147,893,c75,-s75,66);doorLeaf(372,705,-c75,-s75,50);doorLeaf(435,825,-s75,-c75,56);
+B(135,893,147,915,WH,wmW);
+/* vana: okraj s tloušťkou, vnitřní pánev se šikmým dnem, odtok, baterie, přeliv */
+ (function(){var tw=M(0xfbfaf7,.22),inn=M(0x9fb4be,.25),dk=M(0x8d9aa0,.3);
+  B(557,681,621,689,.56,tw);B(557,885,621,893,.56,tw);B(557,689,566,885,.56,tw);B(612,689,621,885,.56,tw);
+  B(566,689,612,885,.14,inn);B(566,689,612,700,.3,inn,.14);B(566,874,612,885,.26,inn,.14);
+  B(566,700,572,874,.4,inn,.14);B(606,700,612,874,.4,inn,.14);
+  B(559,683,619,687,.02,M(0xffffff,.15),.56);B(559,891,619,895,.02,M(0xffffff,.15),.56);B(559,689,563,885,.02,M(0xffffff,.15),.56);B(615,689,619,885,.02,M(0xffffff,.15),.56);
+  C(589,717,5,.012,steel,.14,16);C(589,717,3,.016,M(0x3d4750,.4),.152,12);B(586,700,592,702.2,.04,steel,.27);
+  C(589,695,2.2,.22,steel,.56,12);B(587.6,695,590.4,712,.022,steel,.76);C(578,694,2.6,.06,steel,.56,10);C(600,694,2.6,.06,steel,.56,10)})();
+tealB(621,679,623,765,WH,1,.95,1.25);tealB(621,809,623,893,WH,1,.93,1.25);tealB(621,765,623,809,.78,1,.49,.78);
 /* okno do světlíku nad vanou: průchozí otvor ve zdi (vidět i zvenku), bílý rám, mléčné sklo, mezera nad vanou. Zeď je oříznutá ve výšce 1,25 m, vidět je spodní křídlo */
 (function(){var fr=M(0xf4f1ec,.5),gz=M(0x6f858e,.5,0,{emissive:0x1f2d33,emissiveIntensity:.8});
- B(623,755,645,821,.78,[wallW,wallW,fr,wallW,wallW,wallW]);
- B(623.2,755,644.8,760,.44,fr,.78);B(623.2,816,644.8,821,.44,fr,.78);B(623.1,755.1,644.9,820.9,.05,fr,1.2);B(623.2,784,644.8,788,.38,fr,.81);B(620,755.1,623,820.9,.03,fr,.78);
- B(632,758,636,784,.37,gz,.83);B(632,788,636,816,.37,gz,.83)})();tealB(557,679,621,681,WH,4,.64,1.25);tealB(553,681,557,893,.5,1,2.35,.5);
+ B(623,765,645,811,.78,[wallW,wallW,fr,wallW,wallW,wallW]);
+ B(623.2,765,644.8,770,.44,fr,.78);B(623.2,806,644.8,811,.44,fr,.78);B(623.2,768,644.8,808,.04,fr,.98);B(620,765.1,623,810.9,.03,fr,.78);
+ B(632,768,636,808,.2,gz,.78);B(632,768,636,808,.2,gz,1.02)})();tealB(557,679,621,681,WH,4,.64,1.25);tealB(553,681,557,893,.5,1,2.35,.5);
 /* záchod: stojící mísa s kapkovitým tvarem, sedátko s víkem, nádržka u zdi */
 function ell(cx,cy,rx,ry,h,mat,base){var m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,h,36),mat);m.scale.set(rx*S,1,ry*S);m.position.set(X(cx),base+h/2,Z(cy));return add(m)}
 (function(){var seat=M(0xf6f3ee,.35),porc=M(0xfbfaf7,.3),lid=M(0xf1eee8,.4);
@@ -405,6 +422,20 @@ function ell(cx,cy,rx,ry,h,mat,base){var m=new THREE.Mesh(new THREE.CylinderGeom
 /* Společné drobnosti stylů */
 function hobsink(top,plateMat){B(400,843,423,875,.01,steel,top+.005);C(411,879,3,.16,steel,top+.005,10);B(268,837,294,883,.012,plateMat,top);
  [[281,851,8],[281,871,7]].forEach(function(p){C(p[0],p[1],p[2],.01,M(0x5a5f6b,.4),top+.012,16)})}
+/* kuchyňská linka podle fotky: bílé fronty s kulatými úchytkami, dubová pracovní deska, bílý lesklý obklad (stejné pro oba styly) */
+var whiteT=tex(function(g){g.fillStyle='#c8cbc9';g.fillRect(0,0,512,512);for(var i=0;i<6;i++)for(var j=0;j<2;j++){var x=i*85.33,y=j*256,d=(rnd()*2-1)*5;
+ g.fillStyle='rgb('+cl(244+d)+','+cl(245+d)+','+cl(243+d)+')';g.fillRect(x+2,y+2,81.3,252);
+ var gr=g.createLinearGradient(x,y,x+85,y+256);gr.addColorStop(0,'rgba(255,255,255,.35)');gr.addColorStop(.5,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.08)');g.fillStyle=gr;g.fillRect(x+2,y+2,81.3,252)}});
+function kitchen(){var fw=M(0xf7f6f2,.42),seam=M(0xb9b6ae,.6),tp=M(0x90581f,.45),
+ t=whiteT.clone();t.needsUpdate=true;t.repeat.set(3.2,.6);var tm=new THREE.MeshStandardMaterial({map:t,roughness:.2,metalness:.02});
+ B(250,837,435,893,.86,fw);
+ [292,336,384].forEach(function(x){B(x-.4,836.6,x+.4,839,.78,seam,.08)});
+ B(336,836.6,430,839,.012,seam,.54);
+ B(250,837,435,841,.07,M(0x2b2b2d,.8));
+ [[271,.5],[314,.5],[360,.7],[360,.38],[407,.7],[407,.38]].forEach(function(k){Sp(k[0],834.8,2.3,k[1],steel)});
+ B(250,833,435,893,.04,tp,.86);
+ B(250,890,435,893,.35,tm,.9);
+ hobsink(.9,M(0x0f1013,.25))}
 function basin(mat,y){C(481,704,12,.03,mat,y,20);C(481,692,2.5,.14,steel,y,8)}
 var bk=M(0x1c1d21,.4);
 function tv(base){B(617,556,623,648,.62,bk,base)}
@@ -497,9 +528,9 @@ piece('Stojací lampa',300,672,34,34,function(){var top=[300,672,1.5];
  cone(300,672,5,16,.3,1.5,shade);Sp(300,672,5.5,1.52,lampS)});
 
 /* ---- pevné části: chodba, kuchyň, koupelna ---- */
-B(137,770,166,850,.06,st,.4);legs(137,770,166,850,.4,st,3);B(139,772,164,848,.06,wd,.46);B(168,855,212,890,.012,M(0x2a2c31,1));blades(206,745,1,pot);
-B(250,837,430,883,.86,gf2);B(250,837,430,839,.03,st,.8);B(330,839,368,883,.86,M(0x9aa0a8,.3,.6));B(248,833,432,885,.04,con,.86);hobsink(.9,M(0x0f1013,.3));
-B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);B(500,806,556,872,.012,gf2);
+
+kitchen();
+B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);
 })();
 
 /* ===== Světlý skandinávský styl ===== */
@@ -546,9 +577,9 @@ piece('Židle',377,384,34,36,function(){B(360,366,392,402,.05,mu,.45);B(388,366,
 piece('Velká rostlina',604,686,32,32,function(){plant(604,686,1.05,terra,gl,gl2)});
 piece('Stojací lampa',300,672,34,34,function(){C(300,672,3,1.4,blk,0,10);C(300,672,13,.05,blk,0);C(300,672,15,.3,M(0xf4c65a,.6,0,{emissive:0xffc477,emissiveIntensity:.55}),1.3)});
 /* pevné části */
-B(137,770,166,850,.06,oak,.4);legs(137,770,166,850,.4,blk,4);B(139,772,164,848,.06,terra,.46);B(168,855,212,890,.012,M(0x5d86a8,1));plant(206,745,.7,mu,gl,gl2);
-B(250,837,430,883,.86,mint);B(250,837,430,839,.03,blk,.8);B(330,839,368,883,.86,M(0xf0e4c6,.35,.1));B(248,833,432,885,.04,oak,.86);hobsink(.9,blk);
-B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);B(500,806,556,872,.012,terra);
+
+kitchen();
+B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);
 })();
 
 /* ===== Teplý japandi: přírodní dub, ořech, bouclé, terakota. Jiné rozmístění ===== */
@@ -589,9 +620,9 @@ piece('Stolička',372,384,28,28,function(){C(372,384,13,.44,oak,0,24)});
 piece('Papírová lampa',300,672,34,34,function(){C(300,672,3,1.3,oak,0,10);C(300,672,13,.04,oak,0);Sp(300,672,20,1.42,paper)});
 piece('Velká rostlina',584,640,32,32,function(){plant(584,640,1,terra,pA,pB)});
 /* pevné části */
-B(137,770,166,850,.06,wal,.4);legs(137,770,166,850,.4,iron,3);B(139,772,164,848,.06,sand,.46);B(168,855,212,890,.012,linen);plant(206,745,.7,terra,pA,pB);
+
 B(250,837,430,883,.86,oak);B(250,837,430,839,.025,iron,.8);B(330,839,368,883,.86,M(0xd9cfbd,.4,.1));B(248,833,432,885,.04,stone,.86);hobsink(.9,bk);
-B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);B(500,806,556,872,.012,linen);
+B(462,686,500,718,.85,white);B(461,685,501,719,.04,white,.85);ell(481,704,14,14,.09,stoneB,.86);basin(M(0x4f514e,.95),.95);C(497,702,1.6,.02,steel,.55,8);
 })();
 curList=PL.dark;
 
@@ -600,7 +631,7 @@ var cfg={
  dark:{wall:0x606266,cap:0x0e0f13,door:0x2a2b30,hemi:.55,sun:.78,warm:.9,warm2:.55,
   t:'Industriální loft',d:'Černá ocel, koňaková kůže, beton a tmavé dřevo. Jiné rozložení než Japandi: ocelová postel s baldachýnem u levé stěny, kožená chesterfield sedačka vpravo, kancelářský kout s křeslem, kufr na kolečkách místo stolku, TV na trubkovém stojanu, paletová lavice, bedny a kaktusy. Podlaha: rybí kost. Chodba a koupelna jsou podle skutečného stavu (laminát, bílá dlažba, modrozelený obklad).'},
  light:{wall:0xf8eee0,cap:0x2b3350,door:0xe9d3b0,hemi:.8,sun:.95,warm:.35,warm2:.2,
-  t:'Světlý skandinávský styl',d:'Světlý dub, prachově modrá sedačka, hořčicová a terakotová barva, mátová kuchyň. Podlaha: teplá dubová prkna, v kuchyni a chodbě vzorovaná cementová dlažba, v koupelně zelené obklady.'},
+  t:'Světlý skandinávský styl',d:'Světlý dub, prachově modrá sedačka, hořčicová a terakotová barva, bílá kuchyň s dubovou deskou. Podlaha: teplá dubová prkna, v kuchyni a chodbě vzorovaná cementová dlažba, v koupelně zelené obklady.'},
  japandi:{wall:0xeee6d8,cap:0x4a3a2e,door:0xc2a57c,hemi:.68,sun:.85,warm:.75,warm2:.45,
   t:'Japandi',d:'Přírodní dub, ořech, písková, bouclé a terakota. Jiné rozmístění: kulatý stolek, menší sedačka, nízký regál místo televize, sedací polštáře pod šikminou. Podlaha: široká dubová prkna. Chodba a koupelna jsou podle skutečného stavu (laminát, bílá dlažba, modrozelený obklad).'}
 };
